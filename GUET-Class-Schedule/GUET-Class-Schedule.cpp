@@ -47,25 +47,23 @@ void getDateT(int, int, int, int, weekday, char *);
 int main()
 {
     std::system("chcp 65001");
-    /**
-     * c.txt: MUST EXIST [REPLACE THE '；' WITH ' ']
-     * __c.txt: THE FILE NAME OF THE PREPROCESSED COURSE SCHEDULE FILE, MUST BE CONSISTENT
-     * add.txt: OPTION [NO EMPTY LINE(S) BETWEEN NONEMPTY LINES]
-     * calendar.ics: THE FILE NAME OF THE GENERATED CALENDAR
-     */
-    if (makeFile("c.txt", "__c.txt") != 0)
+    std::system("del *.ics");
+    if (makeFile(timetable_file_name, "__preprocessed_timetable_main.txt") != 0)
     {
         std::printf("error: no input file\n");
+        std::getchar();
+        std::system("del __*.txt");
         return -1;
     }
     course courses[150];
-    int courses_num = getCourses("__c.txt", courses);
+    int courses_num = getCourses("__preprocessed_timetable_main.txt", courses);
     for (size_t i = 0; i < courses_num; i++)
     {
         std::printf("节次：%d\n星期：%d\n%s\n(%d-%d)%s\n课号：%s\n教师：%s\n\n", courses[i].section, courses[i].weekday, courses[i].course_name, courses[i].start_week, courses[i].end_week, courses[i].location, courses[i].id, courses[i].teacher);
     }
-    makeCalendar("add.txt", "calendar.ics", courses, courses_num);
+    makeCalendar(addtion_file_name, calendar_file_name, courses, courses_num);
     std::getchar();
+    std::system("del __*.txt");
     return 0;
 }
 
@@ -214,12 +212,22 @@ int getCourses(const char *f_name, course *res)
 int makeFile(const char *source_name, const char *dest_name)
 {
     FILE *source = std::fopen(source_name, "rb");
-    FILE *dest = std::fopen(dest_name, "wb+");
     if (source == NULL)
     {
-        std::fclose(dest);
         return -1;
     }
+    std::fclose(source);
+
+    char cmdline[200] = "\"GnuWin32\\bin\\iconv.exe\" -t UTF-8 ";
+    std::strcat(cmdline, source_name);
+    std::strcat(cmdline, " > __utf_8_makeFile.txt || copy /Y ");
+    std::strcat(cmdline, source_name);
+    std::strcat(cmdline, " __utf_8_makeFile.txt");
+
+    std::system(cmdline);
+
+    source = std::fopen("__utf_8_makeFile.txt", "rb");
+    FILE *dest = std::fopen(dest_name, "wb+");
     int flag;
     while (flag = std::fgetc(source), flag != EOF)
     {
@@ -268,6 +276,17 @@ void makeCalendar(const char *pre_name, const char *dest_name, course *cs, int n
                        "END:VTIMEZONE\n");
     if (pre)
     {
+        std::fclose(pre);
+
+        char cmdline[200] = "\"GnuWin32\\bin\\iconv.exe\" -t UTF-8 ";
+        std::strcat(cmdline, pre_name);
+        std::strcat(cmdline, " > __utf_8_makeCalendar.txt || copy /Y ");
+        std::strcat(cmdline, pre_name);
+        std::strcat(cmdline, " __utf_8_makeCalendar.txt");
+
+        std::system(cmdline);
+
+        pre = std::fopen("__utf_8_makeCalendar.txt", "rb");
         int flag;
         int flag_before = '\0';
         while (flag = std::fgetc(pre), flag != EOF)

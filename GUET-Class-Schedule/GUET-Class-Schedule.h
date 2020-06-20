@@ -24,4 +24,11 @@
 #define fmonth 4
 #define fday 20
 
+// MUST EXIST [REPLACE THE '；' WITH ' ']
+#define timetable_file_name "c.txt"
+// OPTION [NO EMPTY LINE(S) BETWEEN NONEMPTY LINES]
+#define addtion_file_name "add.txt"
+// THE FILE NAME OF THE GENERATED CALENDAR [SUFFIXED WITH .ics]
+#define calendar_file_name "calendar.ics"
+
 // TODO: 在此处引用程序需要的其他标头。
